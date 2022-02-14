@@ -1,7 +1,8 @@
 
 import discord
-import random
 import os
+import urllib.request
+import json
  
 client = discord.Client()
 
@@ -14,9 +15,15 @@ async def on_message(message):
    if message.author == client.user:
        return
  
-   if message.content.startswith('Hej'):
-       await message.channel.send('Hallå!')
+   if message.content.startswith('Hur blir vädret?'):
+       await message.channel.send('Var och när menar du?')
    elif 'Bye' in message.content:
        await message.channel.send('')
 
-client.run('OTQwMjI2MjY0NTU4NjI0Nzc4.YgET8g.oC9F7tyOmU7dO5aOdOA4CEnOnoQ')
+
+       #översätta svensk tid till coordinated universal time
+       #hitta rätt koordinater utifrån vilken plats som väljs
+       #leta i API
+
+client.run('OTQwMjI2MjY0NTU4NjI0Nzc4.YgET8g.5fHP51JJAsB5epYVipFVloovdEs')
+
