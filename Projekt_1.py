@@ -25,5 +25,5 @@ async def on_message(message):
        #hitta rätt koordinater utifrån vilken plats som väljs
        #leta i API
 
-client.run('OTQwMjI2MjY0NTU4NjI0Nzc4.YgET8g.5fHP51JJAsB5epYVipFVloovdEs')
+client.run('')
 
