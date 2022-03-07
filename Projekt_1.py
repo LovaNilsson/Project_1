@@ -68,27 +68,14 @@ lat = str("{0:0.0f}".format(koordinater[1]))
 
 prognos = forecast(lon, lat, tid)
 
-print(prognos[0])
+väderlista = ['klar himmel', 'mestadels klar himmel', 'växlande molnighet', 'halvklart', 'molnigt', 'mulet', 'dimmigt', 'lätta regnskurar', 'regnigt', 'häftiga regnskurar', 'åskstorm', 'lätt snöblandat regn', 'snöblandat regn', 'mycket snöblandat regn','lätt snöfall', 'snöfall', 'mycket snö', 'lätt regn', 'regnigt', 'mycket regn', 'åska', 'lätt snöblandat regn', 'snöblandat regn', 'mycket snöblandat regn', 'lätt snöfall', 'snöfall', 'mycket snö']
 
-väder[prgonos[0]-1]
-väder = ['klar himmel', 'mestadels klar himmel', 'växlande molnighet', 'halvklart', 'molnigt', 'mulet', 'dimmigt', 'lätta regnskurar', 'regnigt', 'häftiga regnskurar', 'åskstorm', 'snöblandat regn', ]
-1	
+väder = väderlista[prognos[0][0]-1]
+temperatur = str(prognos[1][0])
 
-12	Light sleet showers
-13	Moderate sleet showers
-14	Heavy sleet showers
-15	Light snow showers
-16	Moderate snow showers
-17	Heavy snow showers
-18	Light rain
-19	Moderate rain
-20	Heavy rain
-21	Thunder
-22	Light sleet
-23	Moderate sleet
-24	Heavy sleet
-25	Light snowfall
-26	Moderate snowfall
-27	Heavy snowfall
+svar = "Det blir " + väder + " och " + temperatur.replace('.',',') + " °C."
+print(svar)
 
 
+#git config --global user.email "lova.nilsson@student.tabyenskilda.se"
+#git config --global user.name "Lova"
