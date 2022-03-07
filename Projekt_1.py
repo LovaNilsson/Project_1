@@ -5,6 +5,32 @@ import urllib.request
 import json
 import discord
 
+from datetime import datetime
+from pytz import timezone
+import pytz
+
+def utc_time(dt):
+    local = pytz.timezone("Europe/Stockholm")
+    naive = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+    local_dt = local.localize(naive, is_dst=None)
+    utc_dt = local_dt.astimezone(pytz.utc)
+
+    utc_dt = str(utc_dt)
+    utc_dt = utc_dt.replace(' ', 'T')
+    utc_dt = utc_dt.replace('+00:00', 'Z')
+
+    return utc_dt
+
+year = 2022
+month = 3
+day = 7
+hour = 16
+second = 0
+
+dateTime = str(datetime(year, month, day, hour, second))
+utc_dateTime = print(utc_time(dateTime))
+
+#tid = "2022-03-08T14:00:00Z"
 
 def coordinates(plats, landsnummer):
 
