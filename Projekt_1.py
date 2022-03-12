@@ -6,10 +6,10 @@ import json
 import discord
 
 from datetime import datetime
-from pytz import timezone
-import pytz
+#from pytz import timezone
+#import pytz
 
-def utc_time(dt):
+"""def utc_time(dt):
     local = pytz.timezone("Europe/Stockholm")
     naive = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
     local_dt = local.localize(naive, is_dst=None)
@@ -28,9 +28,7 @@ hour = 16
 second = 0
 
 dateTime = str(datetime(year, month, day, hour, second))
-utc_dateTime = print(utc_time(dateTime))
-
-#tid = "2022-03-08T14:00:00Z"
+utc_dateTime = print(utc_time(dateTime))"""
 
 def coordinates(plats, landsnummer):
 
@@ -56,6 +54,7 @@ def forecast(longitud, latitud, datum_tid):
     c = json.loads(b)
     tidsserie = c["timeSeries"]
     
+
     #Hitta rätt tid och datum
     d = 0
     tid = datum_tid
@@ -85,58 +84,61 @@ def svar(prognos):
 
     return "Det blir " + väder + " och " + temperatur.replace('.',',') + " °C."
 
-
-
-plats = 'Täby'
-#byt ut å, ä, ö om det finns i platsnamnet
-if "å" in plats:
-    plats = plats.replace('å','a')
-elif "ä" in plats:
-    plats = plats.replace('ä','a')
-elif "ö" in plats:
-    plats = plats.replace('ö','a')
-
-
-
-#formatet för tidsgrejen "2022-3-8 14:00:00"
-
-
-
-tid = "2022-03-08T14:00:00Z"
-landsnummer = "725"
-
-koordinater = coordinates(plats, landsnummer)
-lon = str("{0:0.0f}".format(koordinater[0]))
-lat = str("{0:0.0f}".format(koordinater[1]))
-
-prognos = forecast(lon, lat, tid)
-
-print(svar(prognos))
-
-
-
-#git config --global user.email "lova.nilsson@student.tabyenskilda.se"
-#git config --global user.name "Lova"
-
-
+def byt_ut_åäö(plats):
+    #byt ut å, ä, ö om det finns i platsnamnet
+    if "å" in plats:
+        plats = plats.replace('å','a')
+    elif "ä" in plats:
+     plats = plats.replace('ä','a')
+    elif "ö" in plats:
+        plats = plats.replace('ö','a')
+    return(plats)
 
 client = discord.Client()
 
 @client.event
 async def on_ready():
-   print('We have logged in as {0.user}'.format(client))
+    print('We have logged in as {0.user}'.format(client))
  
 @client.event
 async def on_message(message):
-   if message.author == client.user:
-       return
+    if message.author == client.user:
+        return
  
-   if message.content.startswith('Vädermannen!'):
-       message.autor = a
-       await message.channel.send('Hej! '+str(a))
-   elif 'Hur blir vädret?' in message.content:
- # Var vill du veta? Jag kan bara ge prognoser i Sverige'
-       await message.channel.send('')
+    if message.content.startswith('Vädermannen!'):
+        await message.channel.send('Hallå där!')
+
+    if 'väder' in message.content:
+        await message.channel.send('Väder är trevligt ja, vilken plats vill du ha en prognos för? Jag kan bara ge prognoser för platser i Sverige')
+        
+        def check(m):
+            return m.content
+        msg = await client.wait_for('message', check=check)
+        plats = check(msg)
+        plats = byt_ut_åäö(plats)
 
 
-client.run('OTQwMjI2MjY0NTU4NjI0Nzc4.YgET8g.aSgzF3gKC0MOVDvQ-WLRhvVowKo')
+
+        await message.channel.send('Tyvärr finns endast prognoser för de närmaste 10 dygnen. Skriv in datum och tid på formen åååå, mm, dd, tt.')
+        msg = await client.wait_for('message', check=check)
+        tid = check(msg)
+        #Jag har inte fixat till så att tiden blir rätt än men själva boten fungerar nu! Jag vet dock inte vad som händer om man skriver in en plats som inte finns
+
+        tid = "2022-03-12T20:00:00Z"
+        landsnummer = "725"
+
+        koordinater = coordinates(plats, landsnummer)
+        lon = str("{0:0.0f}".format(koordinater[0]))
+        lat = str("{0:0.0f}".format(koordinater[1]))
+
+        prognos = forecast(lon, lat, tid)
+
+       
+       
+        await message.channel.send(svar(prognos))
+
+
+
+
+
+client.run('OTQwMjI2MjY0NTU4NjI0Nzc4.YgET8g.rsVaplQRu9GyAprVmoVVICkLUKs')
