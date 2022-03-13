@@ -1,4 +1,3 @@
-#Test
 
 import os
 import urllib.request
@@ -34,11 +33,13 @@ def coordinates(plats, landsnummer):
     
     a = urllib.request.urlopen(coordinatesUrl) 
     b = a.read()
-    c = json.loads(b)
-    lon = c[0]["lon"]
-    lat = c[0]["lat"]
-    
-    return(lon, lat)
+    if b == b'[]':
+        return 0
+    else:
+        c = json.loads(b)
+        lon = c[0]["lon"]
+        lat = c[0]["lat"]
+        return(lon, lat)
 
 
 def forecast(longitud, latitud, datum_tid):
@@ -114,38 +115,43 @@ async def on_message(message):
     if message.author == client.user:
         return
  
-    if message.content.startswith('Vädermannen!'):
+    elif message.content.startswith('Vädermannen!'):
         await message.channel.send('Hallå där!')
 
-    if 'väder' in message.content:
+    elif 'väder' in message.content:
         await message.channel.send('Väder är trevligt ja, vilken plats vill du ha en prognos för? Jag kan bara ge prognoser för platser i Sverige')
-        
-        def check(m):
-            return m.content
-        
-        msg = await client.wait_for('message', check=check)
-        plats = check(msg)
-        plats = byt_ut_åäö(plats)
 
-        await message.channel.send('Tyvärr finns endast prognoser för de närmaste 10 dygnen. Skriv in datum och tid på formen åååå, mm, dd, tt.')
+        koordinater = 0
+        while koordinater == 0:
+            def check(m):
+                return m.content
+        
+            msg = await client.wait_for('message', check=check)
+            plats = check(msg)
+            plats = byt_ut_åäö(plats)
+
+            landsnummer = "725"
+
+            koordinater = coordinates(plats, landsnummer)
+            if koordinater == 0:
+                await message.channel.send('Platsen kunde inte hittas. Försök med en annan plats!')
+
+            else:
+                lon = str("{0:0.0f}".format(koordinater[0]))
+                lat = str("{0:0.0f}".format(koordinater[1]))
+
+        await message.channel.send('Skriv in datum och tid på formen åååå, mm, dd, tt. Tyvärr finns endast prognoser för de närmaste 10 dygnen.')
+
         msg = await client.wait_for('message', check=check)
         tid = check(msg)
         tid = utc_time(tid)
-        #Jag har inte fixat till så att tiden blir rätt än men själva boten fungerar nu! Jag vet dock inte vad som händer om man skriver in en plats som inte finns
-        #Tiden ska funka nu
-
-        landsnummer = "725"
-
-        koordinater = coordinates(plats, landsnummer)
-        lon = str("{0:0.0f}".format(koordinater[0]))
-        lat = str("{0:0.0f}".format(koordinater[1]))
 
         prognos = forecast(lon, lat, tid)
        
         await message.channel.send(svar(prognos))
 
 
+client.run('TOKEN')
 
 
 
-client.run('OTQwMjI2MjY0NTU4NjI0Nzc4.YgET8g.rsVaplQRu9GyAprVmoVVICkLUKs')
