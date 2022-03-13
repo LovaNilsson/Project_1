@@ -6,10 +6,17 @@ import json
 import discord
 
 from datetime import datetime
-#from pytz import timezone
-#import pytz
+from pytz import timezone
+import pytz
 
-"""def utc_time(dt):
+def utc_time(dt):
+    dt = dt.split (',')
+    year = int(dt[0])
+    month = int(dt[1])
+    day = int(dt[2])
+    hour = int(dt[3])
+    dt = str(datetime(year, month, day, hour))
+    
     local = pytz.timezone("Europe/Stockholm")
     naive = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
     local_dt = local.localize(naive, is_dst=None)
@@ -20,15 +27,6 @@ from datetime import datetime
     utc_dt = utc_dt.replace('+00:00', 'Z')
 
     return utc_dt
-
-year = 2022
-month = 3
-day = 7
-hour = 16
-second = 0
-
-dateTime = str(datetime(year, month, day, hour, second))
-utc_dateTime = print(utc_time(dateTime))"""
 
 def coordinates(plats, landsnummer):
 
@@ -57,8 +55,7 @@ def forecast(longitud, latitud, datum_tid):
 
     #Hitta rätt tid och datum
     d = 0
-    tid = datum_tid
-    while tidsserie[d]["validTime"]!=tid:
+    while tidsserie[d]["validTime"]!=datum_tid:
         d+=1
     
     #Hitta temperatur
@@ -113,18 +110,18 @@ async def on_message(message):
         
         def check(m):
             return m.content
+        
         msg = await client.wait_for('message', check=check)
         plats = check(msg)
         plats = byt_ut_åäö(plats)
 
-
-
         await message.channel.send('Tyvärr finns endast prognoser för de närmaste 10 dygnen. Skriv in datum och tid på formen åååå, mm, dd, tt.')
         msg = await client.wait_for('message', check=check)
         tid = check(msg)
+        tid = utc_time(tid)
         #Jag har inte fixat till så att tiden blir rätt än men själva boten fungerar nu! Jag vet dock inte vad som händer om man skriver in en plats som inte finns
+        #Tiden ska funka nu
 
-        tid = "2022-03-12T20:00:00Z"
         landsnummer = "725"
 
         koordinater = coordinates(plats, landsnummer)
@@ -132,8 +129,6 @@ async def on_message(message):
         lat = str("{0:0.0f}".format(koordinater[1]))
 
         prognos = forecast(lon, lat, tid)
-
-       
        
         await message.channel.send(svar(prognos))
 
