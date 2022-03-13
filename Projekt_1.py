@@ -52,10 +52,22 @@ def forecast(longitud, latitud, datum_tid):
     c = json.loads(b)
     tidsserie = c["timeSeries"]
     
-
     #Hitta rätt tid och datum
     d = 0
-    while tidsserie[d]["validTime"]!=datum_tid:
+    tid_nr_d = tidsserie[d]["validTime"]
+    validDate = tid_nr_d[0:10]
+    validHour = tid_nr_d[11:13]
+    date = datum_tid[0:10]
+    hour = datum_tid[11:13]
+
+    while validDate!=date:
+        tid_nr_d = tidsserie[d]["validTime"]
+        validDate = tid_nr_d[0:10]
+        d+=1
+
+    while validHour < hour:
+        tid_nr_d = tidsserie[d]["validTime"]
+        validHour = tid_nr_d[11:13]
         d+=1
     
     #Hitta temperatur
