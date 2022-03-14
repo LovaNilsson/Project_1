@@ -8,7 +8,9 @@ from datetime import datetime, timedelta, date
 from pytz import timezone
 import pytz
 
+
 def utc_time(dt):
+    #översätter angiven tid till UTC och formaterar om till rätt format 
     dt = dt.split ('-')
     year = int(dt[0])
     month = int(dt[1])
@@ -27,10 +29,10 @@ def utc_time(dt):
 
     return utc_dt
 
-def coordinates(plats, landsnummer):
 
+def coordinates(plats, landsnummer):
+    #Hittar koordinater för den angivna platsen
     coordinatesUrl = "http://api.openweathermap.org/geo/1.0/direct?q="+plats+","+landsnummer+"&appid=1b584e5164c75e79f09b30ef48428487"
-    
     a = urllib.request.urlopen(coordinatesUrl) 
     b = a.read()
     if b == b'[]':
@@ -43,17 +45,14 @@ def coordinates(plats, landsnummer):
 
 
 def forecast(longitud, latitud, datum_tid):
-
-    lon = longitud
-    lat = latitud
-    forecastUrl = 'https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/'+lon+'/lat/'+lat+'/data.json'
-    
+    #inhämtar en väderprognos från SMHI:s API
+    forecastUrl = 'https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/'+longitud+'/lat/'+latitud+'/data.json'
     a = urllib.request.urlopen(forecastUrl) 
     b = a.read()
     c = json.loads(b)
     tidsserie = c["timeSeries"]
     
-    #Hitta rätt tid och datum
+    #Hittar rätt tid och datum
     d = 0
     tid_nr_d = tidsserie[d]["validTime"]
     validDate = tid_nr_d[0:10]
@@ -71,13 +70,13 @@ def forecast(longitud, latitud, datum_tid):
         validHour = tid_nr_d[11:13]
         d+=1
     
-    #Hitta temperatur
+    #Hittar index för temperatur och inhämtar temperatur
     e = 0
     while tidsserie[d]["parameters"][e]["name"]!="t":
         e+=1
     temperatur = tidsserie[d]["parameters"][e]["values"]
 
-    #Hitta väder
+    #Hittar index för väder och inhämtar väder
     f = 0
     while tidsserie[d]["parameters"][f]["name"]!="Wsymb2":
         f+=1
@@ -87,35 +86,40 @@ def forecast(longitud, latitud, datum_tid):
 
 
 def svar(prognos):
+    #prognosen formateras om till en textsträng
     väderlista = ['klar himmel', 'mestadels klar himmel', 'växlande molnighet', 'halvklart', 'molnigt', 'mulet', 'dimmigt', 'lätta regnskurar', 'regnigt', 'häftiga regnskurar', 'åskstorm', 'lätt snöblandat regn', 'snöblandat regn', 'mycket snöblandat regn','lätt snöfall', 'snöfall', 'mycket snö', 'lätt regn', 'regnigt', 'mycket regn', 'åska', 'lätt snöblandat regn', 'snöblandat regn', 'mycket snöblandat regn', 'lätt snöfall', 'snöfall', 'mycket snö']
-
     väder = väderlista[prognos[0][0]-1]
     temperatur = str(prognos[1][0])
 
     return "Det blir " + väder + " och " + temperatur.replace('.',',') + " °C."
 
+
 def byt_ut_åäö(plats):
-    #byt ut å, ä, ö om det finns i platsnamnet
+    #byter ut å, ä, ö om det finns i platsnamnet
     if "å" in plats:
         plats = plats.replace('å','a')
     elif "ä" in plats:
      plats = plats.replace('ä','a')
     elif "ö" in plats:
         plats = plats.replace('ö','oe')
+
     return(plats)
 
+
 def kontroll_tid(inputtime):
+    #kontrollerar att det angivna datumet är inom de närmaste 10 dagarna
     nu = datetime.now()
     möjliga_datum = []
     for dagar in range(0, 10):
         datum = nu + timedelta(days=dagar)
         datum = str(datum)[0:10]
         möjliga_datum.append(datum)
-    
+
     if inputtime[0:10] in möjliga_datum:
         return 1
     else:
         return 0
+
 
 client = discord.Client()
 
@@ -166,7 +170,7 @@ async def on_message(message):
         await message.channel.send(svar(prognos))
 
 
-client.run('OTQwMjI2MjY0NTU4NjI0Nzc4.YgET8g.jG66W-BA4dmtAmk13XlaHvQg_GQ')
+client.run('OTQwMjI2MjY0NTU4NjI0Nzc4.YgET8g.MCEGofnYUaXmAgsy8B_2fbAM5qI')
 
 
 
