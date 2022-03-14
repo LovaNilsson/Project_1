@@ -52,24 +52,28 @@ def forecast(longitud, latitud, datum_tid):
     c = json.loads(b)
     tidsserie = c["timeSeries"]
     
+
     #Hittar rätt tid och datum
     d = 0
     tid_nr_d = tidsserie[d]["validTime"]
     validDate = tid_nr_d[0:10]
-    validHour = tid_nr_d[11:13]
     date = datum_tid[0:10]
-    hour = datum_tid[11:13]
-
+    
     while validDate!=date:
         tid_nr_d = tidsserie[d]["validTime"]
         validDate = tid_nr_d[0:10]
         d+=1
+    d-=1
 
-    while validHour < hour:
-        tid_nr_d = tidsserie[d]["validTime"]
-        validHour = tid_nr_d[11:13]
-        d+=1
+    validHour = tidsserie[d]["validTime"][11:13]
+    hour = datum_tid[11:13]
     
+    while int(validHour) < int(hour) and tidsserie[d]["validTime"][0:10] == date:
+        d+=1
+    d-=1
+
+    print(tidsserie[d]["validTime"])
+
     #Hittar index för temperatur och inhämtar temperatur
     e = 0
     while tidsserie[d]["parameters"][e]["name"]!="t":
@@ -170,7 +174,7 @@ async def on_message(message):
         await message.channel.send(svar(prognos))
 
 
-client.run('OTQwMjI2MjY0NTU4NjI0Nzc4.YgET8g.MCEGofnYUaXmAgsy8B_2fbAM5qI')
+client.run('OTQwMjI2MjY0NTU4NjI0Nzc4.YgET8g.ObrQj8_DHfV_KscpOBEWmN8A1lI')
 
 
 
