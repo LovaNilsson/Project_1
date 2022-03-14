@@ -101,7 +101,7 @@ def byt_ut_åäö(plats):
     elif "ä" in plats:
      plats = plats.replace('ä','a')
     elif "ö" in plats:
-        plats = plats.replace('ö','a')
+        plats = plats.replace('ö','oe')
     return(plats)
 
 def kontroll_tid(inputtime):
@@ -166,7 +166,7 @@ async def on_message(message):
         await message.channel.send(svar(prognos))
 
 
-client.run('TOKEN')
+client.run('OTQwMjI2MjY0NTU4NjI0Nzc4.YgET8g.jG66W-BA4dmtAmk13XlaHvQg_GQ')
 
 
 
