@@ -4,12 +4,12 @@ import urllib.request
 import json
 import discord
 
-from datetime import datetime
+from datetime import datetime, timedelta, date
 from pytz import timezone
 import pytz
 
 def utc_time(dt):
-    dt = dt.split (',')
+    dt = dt.split ('-')
     year = int(dt[0])
     month = int(dt[1])
     day = int(dt[2])
@@ -104,6 +104,19 @@ def byt_ut_åäö(plats):
         plats = plats.replace('ö','a')
     return(plats)
 
+def kontroll_tid(inputtime):
+    nu = datetime.now()
+    möjliga_datum = []
+    for dagar in range(0, 10):
+        datum = nu + timedelta(days=dagar)
+        datum = str(datum)[0:10]
+        möjliga_datum.append(datum)
+    
+    if inputtime[0:10] in möjliga_datum:
+        return 1
+    else:
+        return 0
+
 client = discord.Client()
 
 @client.event
@@ -123,29 +136,31 @@ async def on_message(message):
 
         koordinater = 0
         while koordinater == 0:
-            def check(m):
-                return m.content
         
-            msg = await client.wait_for('message', check=check)
-            plats = check(msg)
+            msg = await client.wait_for('message')
+            plats = msg.content
             plats = byt_ut_åäö(plats)
 
             landsnummer = "725"
-
             koordinater = coordinates(plats, landsnummer)
+
             if koordinater == 0:
                 await message.channel.send('Platsen kunde inte hittas. Försök med en annan plats!')
+        
+        await message.channel.send('Skriv in datum och tid på formen åååå-mm-dd-tt.')
 
-            else:
-                lon = str("{0:0.0f}".format(koordinater[0]))
-                lat = str("{0:0.0f}".format(koordinater[1]))
-
-        await message.channel.send('Skriv in datum och tid på formen åååå, mm, dd, tt. Tyvärr finns endast prognoser för de närmaste 10 dygnen.')
-
-        msg = await client.wait_for('message', check=check)
-        tid = check(msg)
-        tid = utc_time(tid)
-
+        time = 0
+        while time == 0:
+            msg = await client.wait_for('message')
+            tid = msg.content
+            time = kontroll_tid(tid)
+            
+            if time == 0:
+                await message.channel.send('Tyvärr finns endast prognoser för de närmaste 10 dygnen. Skriv in ett annat datum!')
+        
+        lon = str("{0:0.0f}".format(koordinater[0]))
+        lat = str("{0:0.0f}".format(koordinater[1]))
+        tid = utc_time(tid)    
         prognos = forecast(lon, lat, tid)
        
         await message.channel.send(svar(prognos))
